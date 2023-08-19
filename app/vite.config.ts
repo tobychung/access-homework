@@ -1,0 +1,89 @@
+/* SPDX-FileCopyrightText: 2014-present Kriasoft */
+/* SPDX-License-Identifier: MIT */
+
+import react from "@vitejs/plugin-react";
+import envars from "envars";
+import { resolve } from "node:path";
+import { URL } from "node:url";
+import relay from "vite-plugin-relay";
+import { defineProject } from "vitest/config";
+import { Config, EnvName } from "./core/config";
+
+// The list of supported environments
+const envNames: EnvName[] = ["prod", "test", "local"];
+const initialEnv = { ...process.env };
+
+// Bootstrap client-side configuration from environment variables
+const configs = envNames.map((envName): [EnvName, Config] => {
+  const cwd = resolve(__dirname, "../env");
+  const env = envars.config({ env: envName, cwd });
+
+  return [
+    envName,
+    {
+      app: {
+        env: envName,
+        name: env.APP_NAME,
+        origin: env.APP_ORIGIN,
+        hostname: new URL(env.APP_ORIGIN).hostname,
+      },
+      firebase: {
+        projectId: env.GOOGLE_CLOUD_PROJECT,
+        appId: env.FIREBASE_APP_ID,
+        apiKey: env.FIREBASE_API_KEY,
+        authDomain: env.FIREBASE_AUTH_DOMAIN,
+        measurementId: env.GA_MEASUREMENT_ID,
+      },
+    },
+  ];
+});
+
+// Pass client-side configuration to the web app
+// https://vitejs.dev/guide/env-and-mode.html#env-variables-and-modes
+process.env = initialEnv;
+process.env.VITE_CONFIG = JSON.stringify(Object.fromEntries(configs));
+envars.config({ env: "local", cwd: resolve(__dirname, "../env") });
+
+/**
+ * Vite configuration
+ * https://vitejs.dev/config/
+ */
+export default defineProject({
+  cacheDir: `../.cache/vite-app`,
+
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          firebase: ["firebase/analytics", "firebase/app", "firebase/auth"],
+          react: ["react", "react-dom", "react-router-dom", "recoil"],
+        },
+      },
+    },
+  },
+
+  plugins: [
+    // https://github.com/vitejs/vite/tree/main/packages/plugin-react
+    react({
+      jsxImportSource: "@emotion/react",
+      babel: {
+        plugins: ["@emotion/babel-plugin"],
+      },
+    }),
+    relay,
+  ],
+
+  server: {
+    proxy: {
+      "/api": {
+        target: process.env.API_ORIGIN,
+        changeOrigin: true,
+      },
+    },
+  },
+
+  test: {
+    ...{ cache: { dir: resolve(__dirname, "../.cache/vitest") } },
+    environment: "happy-dom",
+  },
+});
