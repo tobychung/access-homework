@@ -12,6 +12,7 @@ const Privacy = lazy(() => import("./legal/Privacy.js"));
 const Terms = lazy(() => import("./legal/Terms.js"));
 
 const Dashboard = lazy(() => import("./dashboard/Dashboard.js"));
+const Detail = lazy(() => import("./dashboard/detail.js"));
 
 const SettingsLayout = lazy(() => import("./settings/SettingsLayout.js"));
 const AccountDetails = lazy(() => import("./settings/AccountDetails.js"));
@@ -37,8 +38,15 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     errorElement: <RootError />,
     children: [
+      {
+        path: "/users/:id",
+        element: <Detail />,
+      },
       { index: true, element: <Navigate to="/dashboard" replace /> },
-      { path: "dashboard", element: <Dashboard /> },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
       {
         path: "settings",
         element: <SettingsLayout />,
