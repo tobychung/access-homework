@@ -1,79 +1,76 @@
-import { signInWithCustomToken } from "firebase/auth";
 import * as React from "react";
-import { Disposable, graphql, useMutation } from "react-relay";
 import { useNavigate } from "react-router-dom";
-import { SignInMethod, auth, signIn } from "../../core/firebase";
-import { LoginMutation } from "../../queries/LoginMutation.graphql";
+import { SignInMethod, signIn } from "../../core/firebase";
 
 /**
  * Handles login / signup via Email
  */
-export function useHandleSubmit(state: State, setState: SetState) {
-  const navigate = useNavigate();
-  const [commit, inFlight] = useMutation<LoginMutation>(
-    graphql`
-      mutation LoginMutation($input: SignInInput!) {
-        signIn(input: $input) {
-          newUser
-          emailVerified
-          registered
-          otpSent
-          token
-          saml
-        }
-      }
-    `,
-  );
+// export function useHandleSubmit(state: State, setState: SetState) {
+//   const navigate = useNavigate();
+//   // const [commit, inFlight] = useMutation<LoginMutation>(
+//   //   graphql`
+//   //     mutation LoginMutation($input: SignInInput!) {
+//   //       signIn(input: $input) {
+//   //         newUser
+//   //         emailVerified
+//   //         registered
+//   //         otpSent
+//   //         token
+//   //         saml
+//   //       }
+//   //     }
+//   //   `,
+//   // );
 
-  const self = React.useRef<Disposable>();
+//   const self = React.useRef<Disposable>();
 
-  React.useEffect(() => () => self.current?.dispose(), []);
+//   React.useEffect(() => () => self.current?.dispose(), []);
 
-  const submit = React.useCallback(
-    (event: React.FormEvent) => {
-      event.preventDefault();
-      self.current = commit({
-        variables: {
-          input: {
-            email: state.email,
-            otp: state.code,
-            saml: state.saml,
-          },
-        },
-        onCompleted(res, errors) {
-          const error = errors?.[0]?.message;
+//   const submit = React.useCallback(
+//     (event: React.FormEvent) => {
+//       event.preventDefault();
+//       self.current = commit({
+//         variables: {
+//           input: {
+//             email: state.email,
+//             otp: state.code,
+//             saml: state.saml,
+//           },
+//         },
+//         onCompleted(res, errors) {
+//           const error = errors?.[0]?.message;
 
-          if (error) {
-            setState((prev) => ({ ...prev, error, code: "" }));
-          } else if (res.signIn?.token) {
-            signInWithCustomToken(auth, res.signIn.token)
-              .then(() => {
-                navigate("/");
-              })
-              .catch((err) => {
-                setState((prev) => ({
-                  ...prev,
-                  error: err.message,
-                  otpSent: false,
-                  code: "",
-                }));
-              });
-          } else {
-            setState((prev) => ({
-              ...prev,
-              otpSent: res.signIn?.otpSent,
-              code: "",
-              error: null,
-            }));
-          }
-        },
-      });
-    },
-    [setState, navigate, commit, state.email, state.code, state.saml],
-  );
+//           if (error) {
+//             setState((prev) => ({ ...prev, error, code: "" }));
+//           } else if (res.signIn?.token) {
+//             signInWithCustomToken(auth, res.signIn.token)
+//               .then(() => {
+//                 navigate("/");
+//               })
+//               .catch((err) => {
+//                 setState((prev) => ({
+//                   ...prev,
+//                   error: err.message,
+//                   otpSent: false,
+//                   code: "",
+//                 }));
+//               });
+//           } else {
+//             setState((prev) => ({
+//               ...prev,
+//               otpSent: res.signIn?.otpSent,
+//               code: "",
+//               error: null,
+//             }));
+//           }
+//         },
+//       });
+//     },
+//     [setState, navigate, commit, state.email, state.code, state.saml],
+//   );
 
-  return [submit, inFlight] as const;
-}
+//   return [submit, inFlight] as const;
+// }
 
 /**
  * The initial state of the Login component

@@ -2736,6 +2736,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@restart/hooks@npm:^0.4.9":
+  version: 0.4.11
+  resolution: "@restart/hooks@npm:0.4.11"
+  dependencies:
+    dequal: "npm:^2.0.3"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 57668e468d94b4eaa53689f938dd8c3e9977cba48b56e3ecfbe7cb3afe29d23cbc1eaa48fd11b0ff265a5a948befb5aed011d2945bb148dbd0a136fc6ef059c2
+  languageName: node
+  linkType: hard
+
 "@rollup/pluginutils@npm:^4.1.1":
   version: 4.2.1
   resolution: "@rollup/pluginutils@npm:4.2.1"
@@ -3845,6 +3856,7 @@ __metadata:
     recoil: "npm:^0.7.7"
     relay-compiler: "npm:^15.0.0"
     relay-config: "npm:^12.0.1"
+    relay-hooks: "npm:^8.0.0"
     relay-runtime: "npm:^15.0.0"
     typescript: "npm:~5.1.3"
     vite: "npm:^4.3.9"
@@ -11174,6 +11186,19 @@ __metadata:
   dependencies:
     cosmiconfig: "npm:^5.0.5"
   checksum: 47a5ac5d52930668d644c168ceb988674c33ff353d3a418cdf3f37f5598c185a46a5fdd0685bd6c63729430cc498da06968a4874a5b5964cef19b1933a9ad66f
+  languageName: node
+  linkType: hard
+
+"relay-hooks@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "relay-hooks@npm:8.0.0"
+  dependencies:
+    "@restart/hooks": "npm:^0.4.9"
+    fbjs: "npm:^3.0.2"
+  peerDependencies:
+    react: ^16.9.0 || ^17 || ^18
+    relay-runtime: ^13.0.2 || ^14.0.0 || ^15.0.0
+  checksum: 5073bf5f1c1011a0503b39441dfd0dec6869181fc137f9f21b18087399297be8c4d3a3cd853143e071e184550b470770668cfeb50c8244c67d44d4bf530e2c67
   languageName: node
   linkType: hard
 

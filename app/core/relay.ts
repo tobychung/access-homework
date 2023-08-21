@@ -4,7 +4,6 @@
 import * as React from "react";
 import { RelayEnvironmentProvider as Provider } from "react-relay";
 import { Environment, Network, RecordSource, Store } from "relay-runtime";
-import { getIdToken } from "./auth";
 
 /**
  * Initializes a new instance of Relay environment.
@@ -15,19 +14,21 @@ export function createRelay(): Environment {
   // https://relay.dev/docs/guides/network-layer/
   const network = Network.create(async function fetchFn(operation, variables) {
     const headers = new Headers({ ["Content-Type"]: "application/json" });
-    const idToken = await getIdToken();
+    // const idToken = await getIdToken();
+    const idToken = "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";
 
     // When the user is authenticated append the ID token to the request
     if (idToken) {
       headers.set("Authorization", `Bearer ${idToken}`);
     }
-
-    const res = await fetch("/api", {
+    const res = await fetch("https://api.github.com/graphql", {
+      // const res = await fetch("/api", {
       method: "POST",
       headers,
       credentials: "include",
       body: JSON.stringify({ query: operation.text, variables }),
     });
+    console.log("🚀 ~ file: relay.ts:31 ~ network ~ res:", res);
 
     if (!res.ok) {
       throw new HttpError(res.status, res.statusText);

@@ -1,5 +1,3 @@
-/* SPDX-FileCopyrightText: 2014-present Kriasoft */
-/* SPDX-License-Identifier: MIT */
 import React from "react";
 
 // ** MUI Imports
@@ -8,27 +6,55 @@ import Avatar from "@mui/material/Avatar";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
+import { graphql, useLazyLoadQuery } from "react-relay";
+
+// ** Local Imports
 import { usePageEffect } from "../../core/page";
 import usersResult from "./usersResult.json";
 
-export default function Home(): JSX.Element {
+const query = graphql`
+  query DashboardUsersQuery($query: String!, $type: SearchType!, $first: Int) {
+    search(query: $query, type: $type, first: $first) {
+      userCount
+      edges {
+        node {
+          ... on User {
+            id
+            name
+            avatarUrl
+            login
+            isSiteAdmin
+            repositories {
+              totalCount
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+export type SearchType =
+  | "DISCUSSION"
+  | "ISSUE"
+  | "REPOSITORY"
+  | "USER"
+  | "%future added value";
+
+const variables = {
+  query: "location:taiwan language:Javascript",
+  type: "USER",
+  first: 100,
+};
+
+const Home = () => {
   usePageEffect({ title: "React App" });
   const [checked, setChecked] = React.useState([1]);
 
+  const data = useLazyLoadQuery(query, variables, {
+    fetchPolicy: "store-or-network",
+  });
+
   const userEdges: UserEdge[] = usersResult.data.search.edges;
-
-  const handleToggle = (value: number) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    setChecked(newChecked);
-  };
 
   return (
     <Container sx={{ py: "20vh" }} maxWidth="sm">
@@ -91,29 +117,7 @@ export default function Home(): JSX.Element {
           );
         })}
       </List>
-
-      {/* <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          gridGap: "1rem",
-        }}
-      >
-        <Button
-          variant="outlined"
-          size="large"
-          href={`/api`}
-          children="Explorer API"
-          startIcon={<Api />}
-        />
-        <Button
-          variant="outlined"
-          size="large"
-          href="https://github.com/kriasoft/react-starter-kit"
-          children="View on GitHub"
-          startIcon={<GitHub />}
-        />
-      </Box> */}
     </Container>
   );
-}
+};
+export default Home;

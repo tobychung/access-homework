@@ -2,35 +2,30 @@
 /* SPDX-License-Identifier: MIT */
 
 import * as React from "react";
-import { graphql, useMutation } from "react-relay";
-import { UploadMutation } from "../queries/UploadMutation.graphql";
-import {
-  UploadSaveMutation,
-  UploadType,
-} from "../queries/UploadSaveMutation.graphql";
+import { UploadType } from "../queries/UploadSaveMutation.graphql";
 
-const uploadMutation = graphql`
-  mutation UploadMutation($fileName: String!, $contentType: String) {
-    uploadURL: getUploadURL(fileName: $fileName, contentType: $contentType)
-  }
-`;
+// const uploadMutation = graphql`
+//   mutation UploadMutation($fileName: String!, $contentType: String) {
+//     uploadURL: getUploadURL(fileName: $fileName, contentType: $contentType)
+//   }
+// `;
 
-const saveMutation = graphql`
-  mutation UploadSaveMutation(
-    $id: ID!
-    $uploadURL: String!
-    $uploadType: UploadType!
-  ) {
-    saveUpload(id: $id, uploadURL: $uploadURL, uploadType: $uploadType) {
-      user {
-        id
-        picture {
-          url
-        }
-      }
-    }
-  }
-`;
+// const saveMutation = graphql`
+//   mutation UploadSaveMutation(
+//     $id: ID!
+//     $uploadURL: String!
+//     $uploadType: UploadType!
+//   ) {
+//     saveUpload(id: $id, uploadURL: $uploadURL, uploadType: $uploadType) {
+//       user {
+//         id
+//         picture {
+//           url
+//         }
+//       }
+//     }
+//   }
+// `;
 
 type Options = {
   accept?: string;
@@ -55,8 +50,8 @@ function useUpload<Opt extends Options>(
   : [JSX.Element, FileInput | undefined] {
   const { accept, multiple, saveAs } = options ?? {};
 
-  const [getUploadURL] = useMutation<UploadMutation>(uploadMutation);
-  const [save] = useMutation<UploadSaveMutation>(saveMutation);
+  // const [getUploadURL] = useMutation<UploadMutation>(uploadMutation);
+  // const [save] = useMutation<UploadSaveMutation>(saveMutation);
 
   const [key, setKey] = React.useState(Date.now());
   const [files, setFiles] = React.useState<FileInput[]>();
@@ -80,50 +75,50 @@ function useUpload<Opt extends Options>(
         })),
       );
 
-      for (const [i, file] of files?.entries() || []) {
-        getUploadURL({
-          variables: { fileName: file.name, contentType: file.type },
-          onCompleted({ uploadURL }, errors) {
-            if (uploadURL) {
-              setFile(i, (x) => ({ ...x, url: uploadURL }));
-              fetch(uploadURL, { method: "PUT", body: file })
-                .then(() => {
-                  if (saveAs) {
-                    save({
-                      variables: {
-                        id: saveAs.id as string,
-                        uploadURL,
-                        uploadType: saveAs.type,
-                      },
-                      onCompleted(res, errors) {
-                        const err = errors?.[0];
-                        if (err) {
-                          setFile(i, (x) => ({
-                            ...x,
-                            complete: true,
-                            error: err.message,
-                          }));
-                        } else {
-                          setFile(i, (x) => ({ ...x, complete: true }));
-                        }
-                      },
-                    });
-                  } else {
-                    setFile(i, (x) => ({ ...x, complete: true }));
-                  }
-                })
-                .catch((err) =>
-                  setFile(i, (x) => ({ ...x, error: err.message })),
-                )
-                .finally(() => setKey(Date.now()));
-            } else {
-              const error =
-                errors?.[0]?.message || "Failed to get an upload URL.";
-              setFile(i, (x) => ({ ...x, error }));
-            }
-          },
-        });
-      }
+      // for (const [i, file] of files?.entries() || []) {
+      //   getUploadURL({
+      //     variables: { fileName: file.name, contentType: file.type },
+      //     onCompleted({ uploadURL }, errors) {
+      //       if (uploadURL) {
+      //         setFile(i, (x) => ({ ...x, url: uploadURL }));
+      //         fetch(uploadURL, { method: "PUT", body: file })
+      //           .then(() => {
+      //             if (saveAs) {
+      //               save({
+      //                 variables: {
+      //                   id: saveAs.id as string,
+      //                   uploadURL,
+      //                   uploadType: saveAs.type,
+      //                 },
+      //                 onCompleted(res, errors) {
+      //                   const err = errors?.[0];
+      //                   if (err) {
+      //                     setFile(i, (x) => ({
+      //                       ...x,
+      //                       complete: true,
+      //                       error: err.message,
+      //                     }));
+      //                   } else {
+      //                     setFile(i, (x) => ({ ...x, complete: true }));
+      //                   }
+      //                 },
+      //               });
+      //             } else {
+      //               setFile(i, (x) => ({ ...x, complete: true }));
+      //             }
+      //           })
+      //           .catch((err) =>
+      //             setFile(i, (x) => ({ ...x, error: err.message })),
+      //           )
+      //           .finally(() => setKey(Date.now()));
+      //       } else {
+      //         const error =
+      //           errors?.[0]?.message || "Failed to get an upload URL.";
+      //         setFile(i, (x) => ({ ...x, error }));
+      //       }
+      //     },
+      //   });
+      // }
     },
     [saveAs?.id, saveAs?.type],
   );
